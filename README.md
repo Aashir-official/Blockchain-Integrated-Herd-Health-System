@@ -24,6 +24,34 @@ Anchors fixed
 
 Note: This frontend stores demo data in localStorage only. There is no backend here.
 
+### Supervisor Q&A (Viva Notes)
+
+1) Where is the Admin Security Code set?
+- File: pages/admin-login.html
+- Location: function handleAdminLogin(...) where credentials are checked
+- Exact check: username === 'admin' && password === 'admin123' && securityCode === 'BIHHS2025'
+- This means the security code 'BIHHS2025' is defined inline in pages/admin-login.html (no separate config file).
+
+2) Where is login/signup data saved in cache and where in the code?
+- Mechanism: Browser localStorage (client-side only)
+- Admin login storage (set on successful login and when "Keep me signed in" is checked):
+  - Keys: adminLoggedIn, adminUsername, adminLoginTime
+  - Remember-me bundle key: bihhsAdminCredentials (JSON with { username, password, securityCode })
+  - Implemented in pages/admin-login.html inside handleAdminLogin(...) where localStorage.setItem(...) is called.
+- User login storage (when "Remember me" is checked):
+  - Key: bihhsUserCredentials (JSON with { emailPhone, password })
+  - Set in assets/js/main.js inside handleLogin(...)
+  - Loaded back on page load in assets/js/main.js (looks for bihhsUserCredentials and auto-fills the form).
+- Sign-up/Registration pages:
+  - No persistent storage is performed. The forms validate input and then redirect to dashboard.html; no data is written to localStorage or a database in this prototype.
+
+3) Is the whole website just HTML, CSS, and JS? If no backend, where is data stored and where is the dummy dataset?
+- Stack: Pure frontend (HTML, CSS, JavaScript). No backend or database is connected in this project.
+- Data storage: Browser localStorage only (see keys above). Clearing site data in the browser will remove it.
+- Dummy datasets used for the Admin Dashboard (users, collars, activity logs):
+  - File: assets/js/admin-dashboard.js
+  - Arrays defined at the top of the file: mockUsers, mockCollars, mockActivityLogs. These drive the tables and counts you see in the admin panel.
+
 ## Project Overview
 
 BIHHS (Blockchain Integrated Herd Health System) is a comprehensive web-based platform designed for livestock monitoring and management. The system provides both user and administrative interfaces for monitoring cattle health, managing smart collars, and tracking herd activities.
