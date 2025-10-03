@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIHHS Admin Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="admin-body">
+    <!-- Admin Navigation -->
+    <nav class="admin-nav">
+        <div class="admin-nav-brand">
+            <i class="fas fa-shield-alt"></i>
+            <div>
+                <h2>BIHHS Admin</h2>
+                <span>System Management Portal</span>
+            </div>
+        </div>
+        <div class="admin-nav-tabs">
+            <a href="#overview" class="admin-nav-tab active">Overview</a>
+            <a href="#users" class="admin-nav-tab">User Management</a>
+            <a href="#collars" class="admin-nav-tab">Collar Tracking</a>
+            <a href="#activity" class="admin-nav-tab">Login Activity</a>
+            <a href="#reports" class="admin-nav-tab">Reports</a>
+            <a href="#system" class="admin-nav-tab">System Settings</a>
+        </div>
+        <div class="admin-nav-user">
+            <span id="admin-welcome">Welcome, Admin</span>
+            <button class="btn btn-outline btn-sm" onclick="exportSystemReport()">Export Report</button>
+            <a href="admin-login.html" class="btn btn-danger btn-sm" onclick="adminLogout()">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Admin Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- Overview Section -->
+            <section class="admin-section active" id="overview">
+                <div class="section-header">
+                    <h1>System Overview</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Key Statistics -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card total-users">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-users">1,247</div>
+                            <div class="stat-label">Total Registered Users</div>
+                            <div class="stat-change positive">+12 this week</div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card active-collars">
+                        <div class="stat-icon"><i class="fas fa-satellite-dish"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="active-collars">3,892</div>
+                            <div class="stat-label">Active Collars</div>
+                            <div class="stat-change positive">+45 this week</div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card online-users">
+                        <div class="stat-icon"><i class="fas fa-circle" style="color: #22c55e;"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="online-users">156</div>
+                            <div class="stat-label">Users Online</div>
+                            <div class="stat-change">Last updated: <span id="last-update">now</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card system-health">
+                        <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">98.7%</div>
+                            <div class="stat-label">System Health</div>
+                            <div class="stat-change positive">All systems operational</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="admin-content-grid">
+                    <div class="admin-quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions-list">
+                            <button class="quick-action-btn" onclick="showSection('users')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Manage Users</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showSection('collars')">
+                                <i class="fas fa-satellite-dish"></i>
+                                <span>Monitor Collars</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showSection('activity')">
+                                <i class="fas fa-chart-line"></i>
+                                <span>View Activity Logs</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="exportUsersReport()">
+                                <i class="fas fa-download"></i>
+                                <span>Export User Report</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity-card">
+                    <h3>Recent System Activity</h3>
+                    <div class="activity-list" id="recent-activity">
+                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section class="admin-section" id="users">
+                <div class="section-header">
+                    <h1>User Management</h1>
+                    <div class="header-actions">
+                        <input type="search" placeholder="Search users..." class="search-input" id="user-search">
+                        <select class="filter-select" id="user-filter">
+                            <option value="all">All Users</option>
+                            <option value="active">Active Users</option>
+                            <option value="blocked">Blocked Users</option>
+                            <option value="inactive">Inactive Users</option>
+                            <option value="farm-owners">Farm Owners</option>
+                            <option value="cattle-companies">Cattle Companies</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="exportUsersReport()">Export Users PDF</button>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="data-table-container">
+                    <table class="data-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email/Phone</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Joined Date</th>
+                                <th>Last Login</th>
+                                <th>Collars</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- User rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Collar Tracking Section -->
+            <section class="admin-section" id="collars">
+                <div class="section-header">
+                    <h1>Collar Tracking System</h1>
+                    <div class="header-actions">
+                        <input type="search" placeholder="Search by collar ID or user..." class="search-input" id="collar-search">
+                        <select class="filter-select" id="collar-status-filter">
+                            <option value="all">All Collars</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="error">Error Status</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Collar Statistics -->
+                <div class="collar-stats-grid">
+                    <div class="collar-stat-card">
+                        <h4>Total Collars</h4>
+                        <div class="collar-stat-number">3,892</div>
+                    </div>
+                    <div class="collar-stat-card active">
+                        <h4>Active Collars</h4>
+                        <div class="collar-stat-number">3,654</div>
+                    </div>
+                    <div class="collar-stat-card inactive">
+                        <h4>Inactive Collars</h4>
+                        <div class="collar-stat-number">186</div>
+                    </div>
+                    <div class="collar-stat-card maintenance">
+                        <h4>Maintenance</h4>
+                        <div class="collar-stat-number">42</div>
+                    </div>
+                    <div class="collar-stat-card error">
+                        <h4>Error Status</h4>
+                        <div class="collar-stat-number">10</div>
+                    </div>
+                </div>
+
+                <!-- Collars Table -->
+                <div class="data-table-container">
+                    <table class="data-table" id="collars-table">
+                        <thead>
+                            <tr>
+                                <th>Collar ID</th>
+                                <th>Owner</th>
+                                <th>Farm Location</th>
+                                <th>Status</th>
+                                <th>Battery</th>
+                                <th>Last Signal</th>
+                                <th>Health Data</th>
+                                <th>Activity/Movement</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="collars-tbody">
+                            <!-- Collar rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Login Activity Section -->
+            <section class="admin-section" id="activity">
+                <div class="section-header">
+                    <h1>User Login Activity</h1>
+                    <div class="header-actions">
+                        <input type="date" class="date-input" id="activity-start-date">
+                        <input type="date" class="date-input" id="activity-end-date">
+                        <button class="btn btn-secondary" onclick="filterActivityLogs()">Filter</button>
+                        <button class="btn btn-primary" onclick="exportActivityReport()">Export Activity PDF</button>
+                    </div>
+                </div>
+
+                <!-- Activity Statistics -->
+                <div class="activity-stats-grid">
+                    <div class="activity-stat-card">
+                        <h4>Total Logins Today</h4>
+                        <div class="activity-stat-number">342</div>
+                    </div>
+                    <div class="activity-stat-card">
+                        <h4>Unique Users Today</h4>
+                        <div class="activity-stat-number">156</div>
+                    </div>
+                    <div class="activity-stat-card">
+                        <h4>Average Session Time</h4>
+                        <div class="activity-stat-number">25 min</div>
+                    </div>
+                    <div class="activity-stat-card">
+                        <h4>Failed Login Attempts</h4>
+                        <div class="activity-stat-number">8</div>
+                    </div>
+                </div>
+
+                <!-- Activity Logs Table -->
+                <div class="data-table-container">
+                    <table class="data-table" id="activity-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Login Time</th>
+                                <th>Logout Time</th>
+                                <th>Duration</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activity-tbody">
+                            <!-- Activity rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section class="admin-section" id="reports">
+                <div class="section-header">
+                    <h1>System Reports</h1>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3>User Registration Report</h3>
+                            <p>Complete list of all registered users with detailed information, registration dates, and account status.</p>
+                            <div class="report-actions">
+                                <button class="btn btn-primary" onclick="exportUsersReport()">
+                                    <i class="fas fa-file-pdf"></i> Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3>Collar Status Report</h3>
+                            <p>Comprehensive overview of all collar devices, their status, battery levels, and connectivity data.</p>
+                            <div class="report-actions">
+                                <button class="btn btn-primary" onclick="exportCollarsReport()">
+                                    <i class="fas fa-file-pdf"></i> Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3>System Health Report</h3>
+                            <p>Overall system performance metrics, server status, and operational health indicators.</p>
+                            <div class="report-actions">
+                                <button class="btn btn-primary" onclick="exportSystemReport()">
+                                    <i class="fas fa-file-pdf"></i> Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Settings Section -->
+            <section class="admin-section" id="system">
+                <div class="section-header">
+                    <h1>System Settings</h1>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>User Management Settings</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label>Auto-block inactive users after (days)</label>
+                                <input type="number" value="90" min="30" max="365">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Collar Management Settings</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label>Collar offline threshold (minutes)</label>
+                                <input type="number" value="30" min="5" max="120">
+                            </div>
+                            <div class="setting-item">
+                                <label>Battery warning threshold (%)</label>
+                                <input type="number" value="20" min="10" max="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>System Maintenance</h3>
+                        <div class="settings-group">
+                            <button class="btn btn-secondary" onclick="clearSystemCache()">Clear System Cache</button>
+                            <button class="btn btn-secondary" onclick="backupDatabase()">Backup Database</button>
+                            <button class="btn btn-warning" onclick="toggleMaintenanceMode()">Maintenance Mode</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin-dashboard.js"></script>
+</body>
+</html>

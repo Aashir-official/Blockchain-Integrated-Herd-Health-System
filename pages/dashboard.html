@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIHHS Portal - Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Navigation -->
+    <nav class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>BIHHS Portal</h2>
+        </div>
+        <div class="nav-tabs">
+            <a href="#dashboard" class="nav-tab active">Dashboard</a>
+            <a href="#herds" class="nav-tab">Herds</a>
+            <a href="#analytics" class="nav-tab">Analytics</a>
+            <a href="#certificates" class="nav-tab">Certificates</a>
+            <a href="#settings" class="nav-tab">Settings</a>
+        </div>
+        <div class="nav-user">
+            <button class="btn btn-outline btn-sm">Export Health Report</button>
+            <a href="../index.html" class="btn btn-primary btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-container">
+            <!-- Dashboard Overview -->
+            <section class="dashboard-section active" id="dashboard">
+                <div class="section-header">
+                    <h1>Multi-Herd Dashboard Overview</h1>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Total Collars</div>
+                    </div>
+                    <div class="stat-card alert">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">Active Alerts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Farms Connected</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">94%</div>
+                        <div class="stat-label">Health Score</div>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h3>Health Trends Across All Farms</h3>
+                    <div class="chart-container">
+                        <canvas id="healthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="farm-selector">
+                    <button class="farm-btn active" onclick="showFarm('all')">All Farms</button>
+                    <button class="farm-btn" onclick="showFarm('karachi')">Karachi Farm</button>
+                    <button class="farm-btn" onclick="showFarm('lahore')">Lahore Farm</button>
+                    <button class="farm-btn" onclick="showFarm('islamabad')">Islamabad Farm</button>
+                </div>
+            </section>
+
+            <!-- Herd Management Section -->
+            <section class="dashboard-section" id="herds">
+                <div class="section-header">
+                    <h1>Karachi Farm - Herd Management</h1>
+                    <div class="alert-banner">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Alert: Collar #KHI-045 showing elevated temperature for 2 hours
+                    </div>
+                </div>
+
+                <div class="cattle-filter">
+                    <button class="filter-btn active" onclick="filterCattle('all')">All Collars</button>
+                    <button class="filter-btn" onclick="filterCattle('healthy')">Healthy</button>
+                    <button class="filter-btn" onclick="filterCattle('alerts')">Alerts</button>
+                    <button class="filter-btn" onclick="filterCattle('recent')">Recent Activity</button>
+                </div>
+
+                <div class="cattle-grid">
+                    <div class="cattle-card healthy">
+                        <div class="cattle-id">KHI-001</div>
+                        <div class="cattle-status">
+                            <span class="status-indicator healthy"></span>
+                            <span class="status-text">Healthy</span>
+                        </div>
+                        <div class="cattle-data">
+                            <div class="data-item">
+                                <span class="label">Temp:</span>
+                                <span class="value">38.2°C</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">HR:</span>
+                                <span class="value">78 BPM</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Activity:</span>
+                                <span class="value">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cattle-card alert">
+                        <div class="cattle-id">KHI-045</div>
+                        <div class="cattle-status">
+                            <span class="status-indicator alert"></span>
+                            <span class="status-text">High Temp Alert</span>
+                        </div>
+                        <div class="cattle-data">
+                            <div class="data-item">
+                                <span class="label">Temp:</span>
+                                <span class="value">40.1°C</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">HR:</span>
+                                <span class="value">95 BPM</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Activity:</span>
+                                <span class="value">Low</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cattle-card healthy">
+                        <div class="cattle-id">KHI-032</div>
+                        <div class="cattle-status">
+                            <span class="status-indicator healthy"></span>
+                            <span class="status-text">Healthy</span>
+                        </div>
+                        <div class="cattle-data">
+                            <div class="data-item">
+                                <span class="label">Temp:</span>
+                                <span class="value">38.5°C</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">HR:</span>
+                                <span class="value">72 BPM</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Activity:</span>
+                                <span class="value">High</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cattle-card healthy">
+                        <div class="cattle-id">KHI-078</div>
+                        <div class="cattle-status">
+                            <span class="status-indicator healthy"></span>
+                            <span class="status-text">Healthy</span>
+                        </div>
+                        <div class="cattle-data">
+                            <div class="data-item">
+                                <span class="label">Temp:</span>
+                                <span class="value">38.0°C</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">HR:</span>
+                                <span class="value">75 BPM</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Activity:</span>
+                                <span class="value">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section class="dashboard-section" id="analytics">
+                <div class="section-header">
+                    <h1>Advanced Analytics</h1>
+                </div>
+                <div class="analytics-content">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>Temperature Trends</h3>
+                            <canvas id="tempChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Heart Rate Analysis</h3>
+                            <canvas id="heartRateChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Activity Levels</h3>
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Certificates Section -->
+            <section class="dashboard-section" id="certificates">
+                <div class="section-header">
+                    <h1>Health Certificates</h1>
+                </div>
+                <div class="certificates-content">
+                    <div class="certificate-list">
+                        <div class="certificate-item">
+                            <i class="fas fa-certificate"></i>
+                            <div class="cert-info">
+                                <h4>Monthly Health Report - Karachi Farm</h4>
+                                <p>Generated on: January 2025</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                        <div class="certificate-item">
+                            <i class="fas fa-certificate"></i>
+                            <div class="cert-info">
+                                <h4>Vaccination Certificate - KHI-045</h4>
+                                <p>Valid until: June 2025</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="dashboard-section" id="settings">
+                <div class="section-header">
+                    <h1>System Settings</h1>
+                </div>
+                <div class="settings-content">
+                    <div class="settings-group">
+                        <h3>Alert Settings</h3>
+                        <div class="setting-item">
+                            <label>Temperature Alert Threshold</label>
+                            <input type="number" value="39.5" step="0.1"> °C
+                        </div>
+                        <div class="setting-item">
+                            <label>Heart Rate Alert Threshold</label>
+                            <input type="number" value="90"> BPM
+                        </div>
+                        <div class="setting-item">
+                            <label>Activity Alert Threshold</label>
+                            <select>
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="low">Low</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Notification Preferences</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked> Email Notifications
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked> SMS Alerts
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="../assets/js/dashboard.js"></script>
+</body>
+</html>
